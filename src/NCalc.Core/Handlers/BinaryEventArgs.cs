@@ -32,6 +32,28 @@ public class BinaryEventArgs(BinaryExpression expression, ILogicalExpressionVisi
     private object? _leftResolvedValue;
     private object? _rightResolvedValue;
 
+    public bool HasChangedArgsValues { get;private set; }
+
+    public object? LeftResolvedValue
+    {
+        get => _leftResolvedValue;
+        set
+        {
+            _leftResolvedValue = value;
+            HasChangedArgsValues = true;
+        }
+    }
+
+    public object? RightResolvedValue
+    {
+        get => _rightResolvedValue;
+        set
+        {
+            _rightResolvedValue = value;
+            HasChangedArgsValues = true;
+        }
+    }
+
     /// <summary>
     /// Lazily evaluates and returns the left side expression. Resolved only once.
     /// </summary>

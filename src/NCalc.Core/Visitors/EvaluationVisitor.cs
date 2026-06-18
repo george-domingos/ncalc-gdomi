@@ -211,6 +211,11 @@ public class EvaluationVisitor(ExpressionContext context) : ILogicalExpressionVi
         if (HasNullOrTypeConflict(a, b, context.Options))
             return comparisonType == ComparisonType.NotEqual;
 
+        if (comparisonType == ComparisonType.Equal && TryCompareEqualsRelaxed(a, b, context.GetStringComparer(), out var r))
+            return r;
+        if (comparisonType == ComparisonType.NotEqual && TryCompareEqualsRelaxed(a, b, context.GetStringComparer(), out r))
+            return !r;
+
         var result = CompareUsingMostPreciseType(a, b, context);
 
         return comparisonType switch

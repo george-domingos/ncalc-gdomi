@@ -16,8 +16,25 @@ public record ExpressionContext
     public EvaluateFunctionHandler? EvaluateFunctionHandler { get; set; }
     public EvaluateAsyncFunctionHandler? EvaluateAsyncFunctionHandler { get; set; }
 
-    public ExpressionOptions Options { get; set; }
-    public CultureInfo CultureInfo { get; set; }
+    public ExpressionOptions Options
+    {
+        get;
+        set
+        {
+            field = value;
+            _stringComparerCache = null;
+        }
+    }
+
+    public CultureInfo CultureInfo
+    {
+        get;
+        set
+        {
+            field = value;
+            _stringComparerCache = null;
+        }
+    }
 
     public ExpressionContext() : this(ExpressionOptions.None, CultureInfo.CurrentCulture)
     {
@@ -53,6 +70,26 @@ public record ExpressionContext
         DynamicParameters = dynamicParameters ?? new Dictionary<string, ExpressionParameter>();
         Functions = functions ?? new Dictionary<string, ExpressionFunction>();
         AsyncFunctions = asyncFunctions ?? new Dictionary<string, AsyncExpressionFunction>();
+    }
+
+    private StringComparer? _stringComparerCache;
+    public StringComparer GetStringComparer()
+    {
+        var cache = _stringComparerCache;
+        if (cache != null) return cache;
+
+        var options = new ComparisonOptions(CultureInfo, Options);
+        var computedComparer = options.IsOrdinal switch
+        {
+            true when options.IsCaseInsensitive => StringComparer.OrdinalIgnoreCase,
+            true => StringComparer.Ordinal,
+            false when options.IsCaseInsensitive => StringComparer.CurrentCultureIgnoreCase,
+            _ => StringComparer.CurrentCulture
+        };
+
+        _stringComparerCache = computedComparer;
+
+        return computedComparer;
     }
 
     public static implicit operator ExpressionContext(ExpressionOptions options) => new()

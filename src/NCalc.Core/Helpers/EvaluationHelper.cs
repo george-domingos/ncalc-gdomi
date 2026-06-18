@@ -133,7 +133,7 @@ public static class EvaluationHelper
                 }
 
                 return rightArray.OfType<string>().Contains(Convert.ToString(leftValue, context.CultureInfo) ?? string.Empty,
-                    TypeHelper.GetStringComparer(context));
+                    context.GetStringComparer());
             }
 
             return rightArray.Contains(leftValue,

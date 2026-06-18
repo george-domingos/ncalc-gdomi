@@ -1,4 +1,6 @@
-﻿namespace NCalc.Helpers;
+﻿using System.Runtime.CompilerServices;
+
+namespace NCalc.Helpers;
 
 public static partial class TypeHelper
 {
@@ -37,14 +39,14 @@ public static partial class TypeHelper
         };
     }
 
-    public static ComparisonResult CompareUsingMostPreciseType(object? a, object? b, ComparisonOptions options)
+    public static ComparisonResult CompareUsingMostPreciseType(object? a, object? b, ExpressionContext context)
     {
         var mpt = GetMostPreciseType(a?.GetType(), b?.GetType());
 
         if (mpt == typeof(double))
         {
-            var left = Convert.ToDouble(a, options.CultureInfo);
-            var right = Convert.ToDouble(b, options.CultureInfo);
+            var left = Convert.ToDouble(a, context.CultureInfo);
+            var right = Convert.ToDouble(b, context.CultureInfo);
 
             if (double.IsNaN(left) || double.IsNaN(right))
                 return ComparisonResult.Unordered;
@@ -59,8 +61,8 @@ public static partial class TypeHelper
 
         if (mpt == typeof(float))
         {
-            var left = Convert.ToSingle(a, options.CultureInfo);
-            var right = Convert.ToSingle(b, options.CultureInfo);
+            var left = Convert.ToSingle(a, context.CultureInfo);
+            var right = Convert.ToSingle(b, context.CultureInfo);
 
             if (float.IsNaN(left) || float.IsNaN(right))
                 return ComparisonResult.Unordered;
@@ -73,10 +75,10 @@ public static partial class TypeHelper
             };
         }
 
-        var aValue = a != null ? Convert.ChangeType(a, mpt, options.CultureInfo) : null;
-        var bValue = b != null ? Convert.ChangeType(b, mpt, options.CultureInfo) : null;
+        var aValue = a != null ? Convert.ChangeType(a, mpt, context.CultureInfo) : null;
+        var bValue = b != null ? Convert.ChangeType(b, mpt, context.CultureInfo) : null;
 
-        var comparer = GetStringComparer(options);
+        var comparer = context.GetStringComparer();
 
         return comparer.Compare(aValue, bValue) switch
         {
@@ -84,5 +86,24 @@ public static partial class TypeHelper
             > 0 => ComparisonResult.Greater,
             _ => ComparisonResult.Equal
         };
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool TryCompareEqualsRelaxed(object? a, object? b, StringComparer comparer, out bool result)
+    {
+        if (a is string aStr && b is not string)
+        {
+            result = comparer.Compare(aStr, b?.ToString()) == 0;
+            return true;
+        }
+
+        if (b is string bStr && a is not string)
+        {
+            result = comparer.Compare(bStr, a?.ToString()) == 0;
+            return true;
+        }
+
+        result = false;
+        return false;
     }
 }
