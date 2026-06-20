@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using NCalc.Exceptions;
 using NCalc.Handlers;
 
@@ -5,6 +6,35 @@ namespace NCalc.Helpers;
 
 public static class BuiltInFunctionHelper
 {
+    private static readonly IReadOnlyList<string> _nativeFunctions =
+        new ReadOnlyCollection<string>([
+            "abs",
+            "acos",
+            "asin",
+            "atan",
+            "atan2",
+            "ceiling",
+            "cos",
+            "exp",
+            "floor",
+            "ieeeremainder",
+            "ln",
+            "log",
+            "log10",
+            "pow",
+            "round",
+            "sign",
+            "sqrt",
+            "tan",
+            "truncate",
+            "max",
+            "min",
+            "if",
+            "in",
+            "ifs"
+        ]);
+    public static IReadOnlyList<string> GetNativeFunctions() => _nativeFunctions;
+
     public static object? Evaluate(
         string functionName,
         FunctionData functionData)
@@ -12,6 +42,30 @@ public static class BuiltInFunctionHelper
         var context = functionData.Context;
         var caseInsensitive = context.Options.HasFlag(ExpressionOptions.IgnoreCaseAtBuiltInFunctions);
         var comparison = caseInsensitive ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+
+        if (functionName.Equals("if", comparison))
+        {
+            if (functionData.Count != 3)
+                throw new NCalcEvaluationException("if() takes exactly 3 arguments");
+
+            var cond = Convert.ToBoolean(functionData.Evaluate(0), context.CultureInfo);
+            return cond ? functionData.Evaluate(1) : functionData.Evaluate(2);
+        }
+
+        if (functionName.Equals("in", comparison))
+        {
+            if (functionData.Count < 2)
+                throw new NCalcEvaluationException("in() takes at least 2 arguments");
+
+            var parameter = functionData.Evaluate(0);
+            for (var i = 1; i < functionData.Count; i++)
+            {
+                if (TypeHelper.CompareUsingMostPreciseType(parameter, functionData.Evaluate(i), context) == ComparisonResult.Equal)
+                    return true;
+            }
+
+            return false;
+        }
 
         if (functionName.Equals("Abs", comparison))
         {
@@ -188,30 +242,6 @@ public static class BuiltInFunctionHelper
             return null;
         }
 
-        if (functionName.Equals("if", comparison))
-        {
-            if (functionData.Count != 3)
-                throw new NCalcEvaluationException("if() takes exactly 3 arguments");
-
-            var cond = Convert.ToBoolean(functionData.Evaluate(0), context.CultureInfo);
-            return cond ? functionData.Evaluate(1) : functionData.Evaluate(2);
-        }
-
-        if (functionName.Equals("in", comparison))
-        {
-            if (functionData.Count < 2)
-                throw new NCalcEvaluationException("in() takes at least 2 arguments");
-
-            var parameter = functionData.Evaluate(0);
-            for (var i = 1; i < functionData.Count; i++)
-            {
-                if (TypeHelper.CompareUsingMostPreciseType(parameter, functionData.Evaluate(i), context) == ComparisonResult.Equal)
-                    return true;
-            }
-
-            return false;
-        }
-
         throw new NCalcFunctionNotFoundException(functionName);
     }
 
@@ -222,6 +252,30 @@ public static class BuiltInFunctionHelper
         var context = functionData.Context;
         var caseInsensitive = context.Options.HasFlag(ExpressionOptions.IgnoreCaseAtBuiltInFunctions);
         var comparison = caseInsensitive ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+
+        if (functionName.Equals("if", comparison))
+        {
+            if (functionData.Count != 3)
+                throw new NCalcEvaluationException("if() takes exactly 3 arguments");
+
+            var cond = Convert.ToBoolean(await functionData.EvaluateAsync(0), context.CultureInfo);
+            return cond ? await functionData.EvaluateAsync(1) : await functionData.EvaluateAsync(2);
+        }
+
+        if (functionName.Equals("in", comparison))
+        {
+            if (functionData.Count < 2)
+                throw new NCalcEvaluationException("in() takes at least 2 arguments");
+
+            var parameter = await functionData.EvaluateAsync(0);
+            for (var i = 1; i < functionData.Count; i++)
+            {
+                if (TypeHelper.CompareUsingMostPreciseType(parameter, await functionData.EvaluateAsync(i), context) == ComparisonResult.Equal)
+                    return true;
+            }
+
+            return false;
+        }
 
         if (functionName.Equals("Abs", comparison))
         {
@@ -396,30 +450,6 @@ public static class BuiltInFunctionHelper
             }
 
             return null;
-        }
-
-        if (functionName.Equals("if", comparison))
-        {
-            if (functionData.Count != 3)
-                throw new NCalcEvaluationException("if() takes exactly 3 arguments");
-
-            var cond = Convert.ToBoolean(await functionData.EvaluateAsync(0), context.CultureInfo);
-            return cond ? await functionData.EvaluateAsync(1) : await functionData.EvaluateAsync(2);
-        }
-
-        if (functionName.Equals("in", comparison))
-        {
-            if (functionData.Count < 2)
-                throw new NCalcEvaluationException("in() takes at least 2 arguments");
-
-            var parameter = await functionData.EvaluateAsync(0);
-            for (var i = 1; i < functionData.Count; i++)
-            {
-                if (TypeHelper.CompareUsingMostPreciseType(parameter, await functionData.EvaluateAsync(i), context) == ComparisonResult.Equal)
-                    return true;
-            }
-
-            return false;
         }
 
         throw new NCalcFunctionNotFoundException(functionName);
