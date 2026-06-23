@@ -6,7 +6,7 @@ namespace NCalc.Helpers;
 
 public static class BuiltInFunctionHelper
 {
-    private static readonly IReadOnlyList<string> _nativeFunctions =
+    private static readonly IReadOnlyList<string> _builtInFunctionNames =
         new ReadOnlyCollection<string>([
             "abs",
             "acos",
@@ -33,7 +33,7 @@ public static class BuiltInFunctionHelper
             "in",
             "ifs"
         ]);
-    public static IReadOnlyList<string> GetNativeFunctions() => _nativeFunctions;
+    public static IReadOnlyList<string> GetBuiltInFunctionNames() => _builtInFunctionNames;
 
     public static object? Evaluate(
         string functionName,
@@ -241,7 +241,7 @@ public static class BuiltInFunctionHelper
 
             return null;
         }
-
+        
         throw new NCalcFunctionNotFoundException(functionName);
     }
 
