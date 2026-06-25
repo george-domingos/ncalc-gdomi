@@ -1,3 +1,3 @@
 namespace NCalc.Handlers;
 
-public delegate object? ExpressionFunction(FunctionData parameters);
+public delegate object? ExpressionFunction(FunctionEventArgs parameters);

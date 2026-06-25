@@ -37,7 +37,7 @@ public static class BuiltInFunctionHelper
 
     public static object? Evaluate(
         string functionName,
-        FunctionData functionData)
+        FunctionEventArgs functionData)
     {
         var context = functionData.Context;
         var caseInsensitive = context.Options.HasFlag(ExpressionOptions.IgnoreCaseAtBuiltInFunctions);
@@ -247,7 +247,7 @@ public static class BuiltInFunctionHelper
 
     public static async ValueTask<object?> EvaluateAsync(
         string functionName,
-        FunctionData functionData)
+        FunctionEventArgs functionData)
     {
         var context = functionData.Context;
         var caseInsensitive = context.Options.HasFlag(ExpressionOptions.IgnoreCaseAtBuiltInFunctions);

@@ -64,14 +64,13 @@ public class EvaluationVisitor(ExpressionContext context, CancellationToken canc
     public virtual object? Visit(Function function)
     {
         var functionName = function.Identifier.Name;
-        var functionData = new FunctionData(
+        var functionArgs = new FunctionEventArgs(
             function.Identifier.Id,
             function.Parameters,
             context,
             this,
             CreateAsyncEvaluationVisitor(),
             CancellationToken);
-        var functionArgs = new FunctionEventArgs(functionData);
 
         OnEvaluateFunction(functionName, functionArgs);
 
@@ -79,9 +78,9 @@ public class EvaluationVisitor(ExpressionContext context, CancellationToken canc
             return functionArgs.Result;
 
         if (context.Functions.TryGetValue(functionName, out var expressionFunction))
-            return expressionFunction(functionData);
+            return expressionFunction(functionArgs);
 
-        return BuiltInFunctionHelper.Evaluate(functionName, functionData);
+        return BuiltInFunctionHelper.Evaluate(functionName, functionArgs);
     }
 
     public virtual object? Visit(Identifier identifier)

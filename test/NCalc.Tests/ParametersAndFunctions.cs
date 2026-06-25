@@ -154,7 +154,7 @@ public class ParametersAndFunctions
             _ = expression.Evaluate(CancellationToken.None);
         }
 
-        object Expression_EvaluateFunction(FunctionData args)
+        object Expression_EvaluateFunction(FunctionEventArgs args)
         {
             counter++;
             totalCounter++;
