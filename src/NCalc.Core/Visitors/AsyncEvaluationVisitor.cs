@@ -65,14 +65,13 @@ public class AsyncEvaluationVisitor(ExpressionContext context, CancellationToken
         // Evaluating every value could produce unexpected behaviour
         var functionName = function.Identifier.Name;
         var syncEvaluationVisitor = new EvaluationVisitor(context, CancellationToken);
-        var functionData = new FunctionData(
+        var functionArgs = new FunctionEventArgs(
             function.Identifier.Id,
             function.Parameters,
             context,
             syncEvaluationVisitor,
             this,
             CancellationToken);
-        var functionArgs = new FunctionEventArgs(functionData);
 
         await OnEvaluateFunctionAsync(functionName, functionArgs);
 
@@ -80,12 +79,12 @@ public class AsyncEvaluationVisitor(ExpressionContext context, CancellationToken
             return functionArgs.Result;
 
         if (context.Functions.TryGetValue(functionName, out var expressionFunction))
-            return expressionFunction(functionData);
+            return expressionFunction(functionArgs);
 
         if (context.AsyncFunctions.TryGetValue(functionName, out var asyncExpressionFunction))
-            return await asyncExpressionFunction(functionData);
+            return await asyncExpressionFunction(functionArgs);
 
-        return await BuiltInFunctionHelper.EvaluateAsync(functionName, functionData);
+        return await BuiltInFunctionHelper.EvaluateAsync(functionName, functionArgs);
     }
 
     public virtual async Task<object?> Visit(Identifier identifier)

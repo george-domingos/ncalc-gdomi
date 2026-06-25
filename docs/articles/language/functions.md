@@ -41,7 +41,7 @@ By default, the comma is used as argument separator, but you can change it using
 If <xref:NCalc.ExpressionOptions.DecimalAsDefault> is used all functions will cast the arguments to <xref:System.Decimal>.
 
 ## Custom Functions
-Custom functions are created using the <xref:NCalc.Handlers.ExpressionFunction> delegate. The argument list is exposed as <xref:NCalc.Handlers.FunctionData>, which lets you evaluate parameters lazily when needed.
+Custom functions are created using the <xref:NCalc.Handlers.ExpressionFunction> delegate. The argument list is exposed as <xref:NCalc.Handlers.FunctionEventArgs>, which lets you evaluate parameters lazily when needed.
 ```csharp
 expression.Functions["SecretOperation"] = args => {
     return (int)args[0].Evaluate() + (int)args[1].Evaluate();
