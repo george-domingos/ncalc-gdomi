@@ -60,8 +60,16 @@ public static class BuiltInFunctionHelper
             var parameter = functionData.Evaluate(0);
             for (var i = 1; i < functionData.Count; i++)
             {
-                if (TypeHelper.CompareUsingMostPreciseType(parameter, functionData.Evaluate(i), context) == ComparisonResult.Equal)
-                    return true;
+                var argEval = functionData.Evaluate(i);
+                if (TypeHelper.TryCompareEqualsRelaxed(parameter, argEval, context.GetStringComparer(), out var r))
+                {
+                    if(r) return true;
+                }
+                else
+                {
+                    if (TypeHelper.CompareUsingMostPreciseType(parameter, argEval, context) == ComparisonResult.Equal)
+                        return true;
+                }
             }
 
             return false;
@@ -272,6 +280,17 @@ public static class BuiltInFunctionHelper
             {
                 if (TypeHelper.CompareUsingMostPreciseType(parameter, await functionData.EvaluateAsync(i), context) == ComparisonResult.Equal)
                     return true;
+
+                var argEval = await functionData.EvaluateAsync(i);
+                if (TypeHelper.TryCompareEqualsRelaxed(parameter, argEval, context.GetStringComparer(), out var r))
+                {
+                    if (r) return true;
+                }
+                else
+                {
+                    if (TypeHelper.CompareUsingMostPreciseType(parameter, argEval, context) == ComparisonResult.Equal)
+                        return true;
+                }
             }
 
             return false;
