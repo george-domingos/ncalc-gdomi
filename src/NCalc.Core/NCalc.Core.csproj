@@ -43,4 +43,10 @@
       <ProjectReference Include="..\NCalc.Parser\NCalc.Parser.csproj" />
       <ProjectReference Include="..\NCalc.SourceGenerators\NCalc.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
     </ItemGroup>
+    <ItemGroup>
+      <Compile Include="$(IntermediateOutputPath)NCalcBuildInfo.cs" />
+    </ItemGroup>
+    <Target Name="GenerateNCalcBuildInfo" BeforeTargets="CoreCompile">
+      <Exec Command="powershell.exe -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\Build\GenerateNCalcBuildInfo.ps1&quot; -RepositoryRoot &quot;$(MSBuildProjectDirectory)&quot; -OutputFile &quot;$(IntermediateOutputPath)NCalcBuildInfo.cs&quot; -Configuration &quot;$(Configuration)&quot;" />
+    </Target>
 </Project>
